@@ -110,8 +110,8 @@ export function Sidebar(props: SidebarProps) {
               <motion.span
                 animate={{ opacity: collapsed ? 0 : 1, x: collapsed ? -8 : 0 }}
                 transition={{
-                  duration: reduced ? 0.18 : 0.4,
-                  delay: reduced ? 0 : collapsed ? 0.1 : 0,
+                  duration: reduced ? 0.18 : 0.35,
+                  delay: 0, // No delays.
                   ease: [0.2, 0.8, 0.2, 1],
                 }}
                 className={cn("relative z-10 min-w-0 truncate", collapsed && "pointer-events-none")}

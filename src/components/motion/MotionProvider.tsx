@@ -8,20 +8,25 @@ import { pageVariants } from "./variants";
 export function MotionProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const reduced = useReducedMotion();
+  const [mounted, setMounted] = React.useState(false);
 
-  const supportsClipPath = React.useMemo(() => {
-    if (typeof CSS === "undefined" || typeof CSS.supports !== "function") return false;
-    try {
-      return CSS.supports("clip-path: circle(50% at 50% 50%)");
-    } catch {
-      return false;
-    }
+  // Defer animations until after first paint.
+  React.useEffect(() => {
+    setMounted(true);
   }, []);
+
+  // Disable clip-path by default (can cause "blank until scroll").
+  const useClip = false;
 
   const variants = pageVariants({
     reduced: Boolean(reduced),
-    supportsClipPath,
+    supportsClipPath: useClip,
   });
+
+  // Render without animation wrapper until mounted.
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -31,11 +36,13 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
         animate="animate"
         exit="exit"
         variants={variants}
-        style={{ willChange: "transform, opacity, clip-path" }}
+        style={{
+          willChange: "transform, opacity",
+          transform: "translateZ(0)",
+        }}
       >
         {children}
       </motion.div>
     </AnimatePresence>
   );
 }
-

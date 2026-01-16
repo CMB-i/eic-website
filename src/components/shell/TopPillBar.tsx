@@ -159,12 +159,7 @@ function TopPillBarEnhanced({ onOpenMobileMenu }: TopPillBarProps) {
   const boxShadow = useTransform(shadowA, (a) => `0 18px 60px oklch(0.02 0.01 265 / ${a})`);
 
   return (
-    <motion.div
-      className="w-full"
-      initial={false}
-      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      transition={{ duration: reduced ? 0.22 : 0.82, ease: [0.2, 0.8, 0.2, 1] }}
-    >
+    <div className="w-full">
       <div className="mx-auto w-full max-w-6xl">
         <motion.div
           className={cn("rounded-full border backdrop-blur-[14px] px-3 py-2.5")}
@@ -224,7 +219,7 @@ function TopPillBarEnhanced({ onOpenMobileMenu }: TopPillBarProps) {
           </div>
         </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

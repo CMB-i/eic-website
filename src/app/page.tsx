@@ -1,79 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { initiatives } from "@/data/initiatives";
 import { events } from "@/data/events";
 import { ScrollReveal, ScrollRevealGroup } from "@/components/motion/ScrollReveal";
-import { useReducedMotionPref } from "@/components/motion/useReducedMotionPref";
-import { HeroFallback } from "@/components/three/HeroFallback";
-import { HeroScene } from "@/components/three/HeroScene";
 import { BentoCard } from "@/components/ui/BentoCard";
 import { MagneticCTA } from "@/components/ui/MagneticCTA";
 import { StaggerHeading } from "@/components/motion/StaggerHeading";
-import { StickySteps } from "@/components/motion/StickySteps";
 
 export default function HomePage() {
   const reduced = useReducedMotion();
-  const reduceHeavy = useReducedMotionPref();
-  const { scrollY } = useScroll();
-  const parallax = useTransform(scrollY, [0, 900], [0, reduced ? 0 : 14]);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-12">
-      <motion.section
+      <section
         className={cn(
           "relative overflow-hidden rounded-4xl border border-border bg-surface",
           "px-6 py-10 md:px-10 md:py-12",
         )}
-        initial={reduced ? { opacity: 0 } : { opacity: 0, y: 14, scale: 0.99 }}
-        animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: reduced ? 0.25 : 0.6, delay: reduced ? 0 : 0.38 }}
       >
-        {/* Glow */}
-        <motion.div
-          className="pointer-events-none absolute inset-0"
-          style={reduced ? undefined : { y: parallax, willChange: "transform" }}
-        >
-          <div className="absolute -left-24 -top-28 h-96 w-96 rounded-full bg-accent/16 blur-3xl" />
-          <div className="absolute -bottom-32 left-1/2 h-[540px] w-[540px] -translate-x-1/2 rounded-full bg-[oklch(0.7_0.15_260_/_14%)] blur-3xl" />
-          <div className="absolute -right-28 top-8 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
-        </motion.div>
+        {/* Subtle gradient glow */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-24 -top-28 h-96 w-96 rounded-full bg-accent/12 blur-3xl" />
+          <div className="absolute -bottom-32 left-1/2 h-[540px] w-[540px] -translate-x-1/2 rounded-full bg-[oklch(0.7_0.15_260_/_10%)] blur-3xl" />
+          <div className="absolute -right-28 top-8 h-96 w-96 rounded-full bg-accent/8 blur-3xl" />
+        </div>
 
         <div className="relative grid gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
           <div className="space-y-6">
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={{
-                hidden: {},
-                show: { transition: { delayChildren: reduced ? 0 : 0.1, staggerChildren: 0.1 } },
-              }}
-            >
-              <motion.div variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}>
-                <StaggerHeading
-                  as="h1"
-                  delay={reduced ? 0 : 0.0}
-                  className="text-balance text-4xl font-semibold tracking-tight text-text md:text-5xl"
-                  text="Build. Learn. Launch. Together."
-                />
-              </motion.div>
+            <div>
+              <StaggerHeading
+                as="h1"
+                delay={0}
+                className="text-balance text-4xl font-semibold tracking-tight text-text md:text-5xl"
+                text="Build. Learn. Launch. Together."
+              />
 
-              <motion.p
-                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
-                transition={{ duration: reduced ? 0.22 : 0.55, ease: [0.2, 0.8, 0.2, 1] }}
-                className="mt-6 max-w-prose text-pretty text-sm leading-6 text-muted md:text-base"
-              >
+              <p className="mt-6 max-w-prose text-pretty text-sm leading-6 text-muted md:text-base">
                 A premium, futuristic template for EIC—designed for shockingly smooth motion, clean
                 content structure, and a signature 3D hero that degrades gracefully.
-              </motion.p>
+              </p>
 
-              <motion.div
-                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
-                className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
-              >
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <MagneticCTA
                   href="/initiatives"
                   className={cn(
@@ -96,8 +67,8 @@ export default function HomePage() {
                   View Events
                   <CalendarDays className="h-4 w-4" />
                 </Link>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
 
             <div className="grid gap-3 pt-2 sm:grid-cols-3">
               <Stat k="Workshops" v="12+" />
@@ -106,19 +77,26 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* 3D hero (contained) */}
+          {/* Hero visual (lightweight, SSR-safe) */}
           <div className="relative">
             <div className="absolute inset-0 rounded-4xl ring-1 ring-glow/20" />
             <div className="relative aspect-[4/3] overflow-hidden rounded-4xl border border-border bg-background/40">
-              {reduceHeavy ? (
-                <HeroFallback className="h-full w-full rounded-none border-0 bg-transparent p-8" />
-              ) : (
-                <HeroScene className="h-full w-full" />
-              )}
+              <div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_50%_50%,oklch(from_var(--accent)_l_c_h_/_15%),transparent_60%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_20%_30%,oklch(0.7_0.15_260_/_12%),transparent_55%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(500px_circle_at_80%_70%,oklch(from_var(--accent)_l_c_h_/_10%),transparent_50%)]" />
+              {/* Subtle grid pattern */}
+              <div
+                className="absolute inset-0 opacity-[0.03]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
             </div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* Pillars */}
       <section className="space-y-6">
@@ -148,12 +126,11 @@ export default function HomePage() {
         </ScrollRevealGroup>
       </section>
 
-      {/* Sticky narrative */}
+      {/* Journey narrative (lightweight, SSR-safe) */}
       <section className="space-y-6">
-        <HeaderKick title="From idea to launch" subtitle="Pinned 3-step story (reduced-motion friendly)." />
-        <StickySteps
-          heightVh={220}
-          steps={[
+        <HeaderKick title="From idea to launch" subtitle="Three steps to real outcomes." />
+        <ScrollRevealGroup className="grid gap-4 md:grid-cols-3" staggerChildren={0.1}>
+          {[
             {
               title: "Ideation",
               body: "Workshops, founder talks, and problems worth solving—fast clarity, low friction.",
@@ -166,8 +143,18 @@ export default function HomePage() {
               title: "Launch",
               body: "Demo days, pitch nights, partnerships—momentum that turns into outcomes.",
             },
-          ]}
-        />
+          ].map((step) => (
+            <ScrollReveal key={step.title}>
+              <BentoCard>
+                <div className="text-xs font-medium text-muted">From idea to launch</div>
+                <div className="mt-3 text-xl font-semibold tracking-tight text-text md:text-2xl">
+                  {step.title}
+                </div>
+                <p className="mt-3 text-sm leading-6 text-muted md:text-base">{step.body}</p>
+              </BentoCard>
+            </ScrollReveal>
+          ))}
+        </ScrollRevealGroup>
       </section>
 
       <section className="space-y-6">
