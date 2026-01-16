@@ -9,15 +9,33 @@ import { TopPillBar } from "./TopPillBar";
 const LS_SIDEBAR = "sidebarCollapsed";
 const LS_INTRO = "eicIntroPlayed";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
-  // Desktop should default to expanded.
+// Module-level callback for drawer open (avoids context/provider complexity).
+let drawerOpenCallback: (() => void) | null = null;
+
+export function setDrawerOpenCallback(cb: (() => void) | null) {
+  drawerOpenCallback = cb;
+}
+
+export function openDrawer() {
+  if (drawerOpenCallback) drawerOpenCallback();
+}
+
+export function ShellController() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const pathname = usePathname();
   const reducedMotion = useReducedMotion();
-
   const introTimerRef = React.useRef<number | null>(null);
 
+  // Sync sidebar width to CSS variable for layout offset.
+  React.useEffect(() => {
+    const width = isCollapsed ? 92 : 280;
+    const isMobile = typeof window !== "undefined" && window.matchMedia?.("(max-width: 767px)")?.matches;
+    const sidebarW = isMobile ? "0px" : `${width}px`;
+    document.documentElement.style.setProperty("--sidebar-w", sidebarW);
+  }, [isCollapsed]);
+
+  // Initialize from localStorage + intro logic.
   React.useEffect(() => {
     try {
       const saved = window.localStorage.getItem(LS_SIDEBAR);
@@ -35,14 +53,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       if (introPlayed) return;
       if (reducedMotion) return;
 
-      // Start expanded, stay open, then auto-collapse. Do NOT write sidebarCollapsed.
+      // Start expanded, stay open ~1600ms, then collapse over ~0.75s. Do NOT write sidebarCollapsed.
       setIsCollapsed(false);
       introTimerRef.current = window.setTimeout(() => {
         setIsCollapsed(true);
         try {
           window.localStorage.setItem(LS_INTRO, "1");
         } catch {}
-      }, 1400);
+      }, 1600);
     } catch {
       // ignore
     }
@@ -52,8 +70,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reducedMotion]);
-
-
 
   const onCollapsedChange = (next: boolean) => {
     if (introTimerRef.current != null) window.clearTimeout(introTimerRef.current);
@@ -66,20 +82,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   };
 
-  return (
-    <div className="min-h-screen">
-      <div className="flex min-h-screen">
-        {/* Desktop sidebar (collapsible, persisted). */}
-        <Sidebar variant="desktop" collapsed={isCollapsed} onCollapsedChange={onCollapsedChange} />
-        <div className="min-w-0 flex-1">
-          {/* Pill bar is sticky INSIDE the main column so it never sits under the sidebar. */}
-          <div className="sticky top-4 z-40 px-4 md:px-6 lg:px-8">
-            <TopPillBar onOpenMobileMenu={() => setIsDrawerOpen(true)} />
-          </div>
+  // Register drawer open callback.
+  React.useEffect(() => {
+    setDrawerOpenCallback(() => setIsDrawerOpen(true));
+    return () => setDrawerOpenCallback(null);
+  }, []);
 
-          <main className="px-5 pb-16 pt-8 md:px-8 lg:px-10">{children}</main>
-        </div>
-      </div>
+  return (
+    <>
+      {/* Desktop sidebar (collapsible, persisted). */}
+      <Sidebar variant="desktop" collapsed={isCollapsed} onCollapsedChange={onCollapsedChange} />
 
       {/* Mobile drawer sidebar (always expanded). */}
       <Sidebar
@@ -99,7 +111,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="max-w-[280px] truncate">route: {pathname}</div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
+// Separate component for TopPillBar that needs to be inside main content area.
+export function TopPillBarWrapper() {
+  return (
+    <div className="sticky top-4 z-40 px-4 md:px-6 lg:px-8">
+      <TopPillBar onOpenMobileMenu={openDrawer} />
+    </div>
+  );
+}

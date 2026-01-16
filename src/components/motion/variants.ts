@@ -38,7 +38,7 @@ export function pageVariants(opts: { reduced: boolean; supportsClipPath: boolean
     },
     exit: {
       opacity: 0,
-      y: -10,
+      y: -8,
       transition: { duration: 0.28, ease: [0.2, 0.8, 0.2, 1] },
     },
   };
@@ -69,7 +69,7 @@ export function stagger(reduced: boolean, staggerChildren = 0.08): Variants {
     show: {
       transition: {
         staggerChildren,
-        delayChildren: 0.06,
+        delayChildren: 0.08,
       },
     },
   };

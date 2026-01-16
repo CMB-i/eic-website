@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, CalendarDays, Sparkles } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { initiatives } from "@/data/initiatives";
 import { events } from "@/data/events";
@@ -13,10 +13,13 @@ import { HeroScene } from "@/components/three/HeroScene";
 import { BentoCard } from "@/components/ui/BentoCard";
 import { MagneticCTA } from "@/components/ui/MagneticCTA";
 import { StaggerHeading } from "@/components/motion/StaggerHeading";
+import { StickySteps } from "@/components/motion/StickySteps";
 
 export default function HomePage() {
   const reduced = useReducedMotion();
   const reduceHeavy = useReducedMotionPref();
+  const { scrollY } = useScroll();
+  const parallax = useTransform(scrollY, [0, 900], [0, reduced ? 0 : 14]);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-12">
@@ -30,54 +33,71 @@ export default function HomePage() {
         transition={{ duration: reduced ? 0.25 : 0.6, delay: reduced ? 0 : 0.38 }}
       >
         {/* Glow */}
-        <div className="pointer-events-none absolute inset-0">
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={reduced ? undefined : { y: parallax, willChange: "transform" }}
+        >
           <div className="absolute -left-24 -top-28 h-96 w-96 rounded-full bg-accent/16 blur-3xl" />
           <div className="absolute -bottom-32 left-1/2 h-[540px] w-[540px] -translate-x-1/2 rounded-full bg-[oklch(0.7_0.15_260_/_14%)] blur-3xl" />
           <div className="absolute -right-28 top-8 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
-        </div>
+        </motion.div>
 
         <div className="relative grid gap-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-xs text-muted">
-              <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Entrepreneurship &amp; Innovation Cell
-            </div>
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: { transition: { delayChildren: reduced ? 0 : 0.1, staggerChildren: 0.1 } },
+              }}
+            >
+              <motion.div variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}>
+                <StaggerHeading
+                  as="h1"
+                  delay={reduced ? 0 : 0.0}
+                  className="text-balance text-4xl font-semibold tracking-tight text-text md:text-5xl"
+                  text="Build. Learn. Launch. Together."
+                />
+              </motion.div>
 
-            <StaggerHeading
-              as="h1"
-              delay={reduced ? 0 : 0.05}
-              className="text-balance text-4xl font-semibold tracking-tight text-text md:text-5xl"
-              text="Build. Learn. Launch. Together."
-            />
-            <p className="max-w-prose text-pretty text-sm leading-6 text-muted md:text-base">
-              A premium, futuristic template for EIC—designed for shockingly smooth motion, clean
-              content structure, and a signature 3D hero that degrades gracefully.
-            </p>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <MagneticCTA
-                href="/initiatives"
-                className={cn(
-                  "bg-accent text-accent-foreground",
-                  "shadow-[0_12px_40px_rgba(255,219,102,0.22)]",
-                )}
+              <motion.p
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+                transition={{ duration: reduced ? 0.22 : 0.55, ease: [0.2, 0.8, 0.2, 1] }}
+                className="mt-6 max-w-prose text-pretty text-sm leading-6 text-muted md:text-base"
               >
-                Explore Initiatives
-                <ArrowRight className="h-4 w-4" />
-              </MagneticCTA>
+                A premium, futuristic template for EIC—designed for shockingly smooth motion, clean
+                content structure, and a signature 3D hero that degrades gracefully.
+              </motion.p>
 
-              <Link
-                href="/events"
-                className={cn(
-                  "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border",
-                  "bg-background/40 px-5 text-sm font-medium text-text/85 hover:text-text",
-                  "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
-                )}
+              <motion.div
+                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
+                className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center"
               >
-                View Events
-                <CalendarDays className="h-4 w-4" />
-              </Link>
-            </div>
+                <MagneticCTA
+                  href="/initiatives"
+                  className={cn(
+                    "bg-accent text-accent-foreground",
+                    "shadow-[0_12px_40px_rgba(255,219,102,0.22)]",
+                  )}
+                >
+                  Explore Initiatives
+                  <ArrowRight className="h-4 w-4" />
+                </MagneticCTA>
+
+                <Link
+                  href="/events"
+                  className={cn(
+                    "inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border",
+                    "bg-background/40 px-5 text-sm font-medium text-text/85 hover:text-text",
+                    "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
+                  )}
+                >
+                  View Events
+                  <CalendarDays className="h-4 w-4" />
+                </Link>
+              </motion.div>
+            </motion.div>
 
             <div className="grid gap-3 pt-2 sm:grid-cols-3">
               <Stat k="Workshops" v="12+" />
@@ -99,6 +119,56 @@ export default function HomePage() {
           </div>
         </div>
       </motion.section>
+
+      {/* Pillars */}
+      <section className="space-y-6">
+        <HeaderKick title="Three pillars" subtitle="Clarity, cadence, community." />
+        <ScrollRevealGroup className="grid gap-4 md:grid-cols-3" staggerChildren={0.1}>
+          {[
+            {
+              t: "Ideation",
+              b: "Workshops and founder talks that turn curiosity into direction.",
+            },
+            {
+              t: "Build",
+              b: "Mentorship, team formation, and prototypes shipped fast.",
+            },
+            {
+              t: "Launch",
+              b: "Demo days, pitch nights, partnerships, and real outcomes.",
+            },
+          ].map((x) => (
+            <ScrollReveal key={x.t}>
+              <BentoCard>
+                <div className="text-base font-semibold text-text">{x.t}</div>
+                <p className="mt-2 text-sm leading-6 text-muted">{x.b}</p>
+              </BentoCard>
+            </ScrollReveal>
+          ))}
+        </ScrollRevealGroup>
+      </section>
+
+      {/* Sticky narrative */}
+      <section className="space-y-6">
+        <HeaderKick title="From idea to launch" subtitle="Pinned 3-step story (reduced-motion friendly)." />
+        <StickySteps
+          heightVh={220}
+          steps={[
+            {
+              title: "Ideation",
+              body: "Workshops, founder talks, and problems worth solving—fast clarity, low friction.",
+            },
+            {
+              title: "Build",
+              body: "Mentorship, team formation, and prototypes that ship. Less slideware, more demos.",
+            },
+            {
+              title: "Launch",
+              body: "Demo days, pitch nights, partnerships—momentum that turns into outcomes.",
+            },
+          ]}
+        />
+      </section>
 
       <section className="space-y-6">
         <HeaderKick title="Featured Initiatives" subtitle="Bento layout + staggered reveal." />
@@ -157,6 +227,37 @@ export default function HomePage() {
           ))}
         </ScrollRevealGroup>
       </section>
+
+      {/* Final CTA (scale-in emphasis) */}
+      <section className="space-y-6">
+        <ScrollReveal>
+          <motion.div
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
+            whileInView={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: reduced ? 0.22 : 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+            className="rounded-4xl border border-border bg-surface p-6"
+          >
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="text-base font-semibold text-text">Join EIC</div>
+                <div className="mt-1 text-sm text-muted">
+                  Placeholder CTA — wire to real onboarding later.
+                </div>
+              </div>
+              <MagneticCTA
+                href="/contact"
+                className={cn(
+                  "bg-accent text-accent-foreground",
+                  "shadow-[0_12px_40px_rgba(255,219,102,0.22)]",
+                )}
+              >
+                Contact <ArrowRight className="h-4 w-4" />
+              </MagneticCTA>
+            </div>
+          </motion.div>
+        </ScrollReveal>
+      </section>
     </div>
   );
 }
@@ -166,7 +267,7 @@ function HeaderKick({ title, subtitle }: { title: string; subtitle: string }) {
     <div className="flex flex-col gap-2">
       <div className="text-sm font-semibold tracking-tight text-text">{title}</div>
       <div className="text-sm text-muted">{subtitle}</div>
-    </div>
+        </div>
   );
 }
 

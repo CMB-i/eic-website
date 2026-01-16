@@ -1,5 +1,6 @@
 "use client";
 
+import type { Variants } from "framer-motion";
 import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 import { cn } from "@/lib/utils";
@@ -14,18 +15,30 @@ type ScrollRevealProps = {
    */
   delay?: number;
   y?: number;
+  blurPx?: number;
   once?: boolean;
+  amount?: number;
 };
 
 export function ScrollReveal({
   children,
   className,
   delay = 0,
-  y = 14,
+  y = 16,
+  blurPx = 6,
   once = true,
+  amount = 0.18,
 }: ScrollRevealProps) {
   const reduced = useReducedMotion();
-  const variants = fadeUp(Boolean(reduced), y);
+  const base = fadeUp(Boolean(reduced), y) as Variants;
+  const blur = reduced ? 0 : Math.max(0, Math.min(6, blurPx));
+  const variants: Variants =
+    blur > 0
+      ? ({
+          hidden: { ...(base as any).hidden, filter: `blur(${blur}px)` },
+          show: { ...(base as any).show, filter: "blur(0px)" },
+        } satisfies Variants)
+      : base;
 
   return (
     <motion.div
@@ -33,13 +46,15 @@ export function ScrollReveal({
       variants={variants}
       initial="hidden"
       whileInView="show"
-      viewport={{ once, amount: 0.25 }}
+      viewport={{ once, amount }}
       transition={{
-        duration: reduced ? 0.25 : 0.5,
+        duration: reduced ? 0.22 : 0.55,
         delay,
         ease: [0.2, 0.8, 0.2, 1],
       }}
-      style={{ willChange: "transform, opacity" }}
+      style={{
+        willChange: blur > 0 ? "transform, opacity, filter" : "transform, opacity",
+      }}
     >
       {children}
     </motion.div>
@@ -56,7 +71,7 @@ type ScrollRevealGroupProps = {
 export function ScrollRevealGroup({
   children,
   className,
-  staggerChildren = 0.09,
+  staggerChildren = 0.1,
   once = true,
 }: ScrollRevealGroupProps) {
   const reduced = useReducedMotion();
@@ -66,7 +81,7 @@ export function ScrollRevealGroup({
       variants={stagger(Boolean(reduced), staggerChildren)}
       initial="hidden"
       whileInView="show"
-      viewport={{ once, amount: 0.22 }}
+      viewport={{ once, amount: 0.16 }}
     >
       {children}
     </motion.div>

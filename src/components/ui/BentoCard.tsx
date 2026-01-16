@@ -18,6 +18,7 @@ export function BentoCard({ children, className }: BentoCardProps) {
         "group relative overflow-hidden rounded-4xl border border-border bg-surface",
         "p-5",
         "transition-transform duration-300 will-change-transform hover:-translate-y-1",
+        "group-hover:ring-1 group-hover:ring-glow/25",
         // Sheen sweep
         "after:pointer-events-none after:content-[''] after:absolute after:inset-0 after:opacity-0",
         "after:bg-[linear-gradient(120deg,transparent,rgba(255,255,255,0.38),transparent)]",

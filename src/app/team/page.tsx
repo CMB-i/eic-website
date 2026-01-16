@@ -23,14 +23,13 @@ export default function TeamPage() {
         </ScrollReveal>
         <ScrollReveal>
           <p className="max-w-2xl text-pretty text-sm leading-6 text-muted md:text-base">
-            Placeholder team members. Replace names/roles and add real profile links later. The
-            grid is designed for scalable bios.
+            Placeholder 
           </p>
         </ScrollReveal>
       </section>
 
       <section className="space-y-6">
-        <HeaderKick title="Core team" subtitle="Clean cards with tasteful hover lift." />
+        <HeaderKick title="Core team" subtitle="the skeleton of your cell" />
         <ScrollRevealGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerChildren={0.08}>
           {team.map((m) => (
             <ScrollReveal key={m.id}>

@@ -39,7 +39,7 @@ export function StaggerHeading({
         show: {
           transition: {
             delayChildren: delay,
-            staggerChildren: 0.06,
+            staggerChildren: 0.09,
           },
         },
       }}
@@ -49,8 +49,12 @@ export function StaggerHeading({
           key={`${w}-${idx}`}
           className="inline-block"
           variants={{
-            hidden: { opacity: 0, y: 10 },
-            show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.2, 0.8, 0.2, 1] } },
+            hidden: { opacity: 0, y: 14 },
+            show: {
+              opacity: 1,
+              y: 0,
+              transition: { duration: 0.55, ease: [0.2, 0.8, 0.2, 1] },
+            },
           }}
         >
           {w}

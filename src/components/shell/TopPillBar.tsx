@@ -1,19 +1,12 @@
+// src/components/shell/TopPillBar.tsx
 "use client";
 
+import * as React from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { usePathname } from "next/navigation";
-import * as React from "react";
 import { cn } from "@/lib/utils";
 import { titleFromPathname } from "@/lib/nav";
-import {
-  Handshake,
-  Mail,
-  Menu,
-  Moon,
-  Search,
-  Sun,
-  UserPlus,
-} from "lucide-react";
+import { Handshake, Mail, Menu, Moon, Search, Sun, UserPlus } from "lucide-react";
 
 type TopPillBarProps = {
   onOpenMobileMenu: () => void;
@@ -22,12 +15,13 @@ type TopPillBarProps = {
 const LS_THEME = "eic.theme";
 type Theme = "light" | "dark";
 
-function getSystemTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-  return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ? "dark" : "light";
+function getCurrentTheme(): Theme {
+  if (typeof document === "undefined") return "dark";
+  const t = document.documentElement.dataset.theme;
+  return t === "light" || t === "dark" ? t : "dark";
 }
 
-function applyTheme(next: Theme) {
+function persistTheme(next: Theme) {
   if (typeof document === "undefined") return;
   document.documentElement.dataset.theme = next;
   try {
@@ -38,70 +32,53 @@ function applyTheme(next: Theme) {
 }
 
 export function TopPillBar({ onOpenMobileMenu }: TopPillBarProps) {
+  const [enhanced, setEnhanced] = React.useState(false);
+  React.useEffect(() => setEnhanced(true), []);
+
+  return enhanced ? (
+    <TopPillBarEnhanced onOpenMobileMenu={onOpenMobileMenu} />
+  ) : (
+    <TopPillBarStatic onOpenMobileMenu={onOpenMobileMenu} />
+  );
+}
+
+function TopPillBarStatic({ onOpenMobileMenu }: TopPillBarProps) {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const title = titleFromPathname(pathname);
 
-  const [theme, setTheme] = React.useState<Theme>("dark");
-
-  const { scrollY } = useScroll();
-  const bgA = useTransform(scrollY, [0, 120], [0.7, 0.45]);
-  const borderA = useTransform(scrollY, [0, 120], [0.75, 0.55]);
-  const shadowA = useTransform(scrollY, [0, 120], [0.22, 0.14]);
-
-  const backgroundColor = useTransform(bgA, (a) => `oklch(from var(--surface) l c h / ${a})`);
-  const borderColor = useTransform(borderA, (a) => `oklch(from var(--border) l c h / ${a})`);
-  const boxShadow = useTransform(
-    shadowA,
-    (a) => `0 18px 60px oklch(0.02 0.01 265 / ${a})`,
-  );
+  // Keep only for icon rendering; DO NOT apply theme here (layout.tsx should do that pre-hydration).
+  const [theme, setThemeState] = React.useState<Theme>("dark");
 
   React.useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(LS_THEME) as Theme | null;
-      const initial = saved === "light" || saved === "dark" ? saved : getSystemTheme();
-      setTheme(initial);
-      applyTheme(initial);
-    } catch {
-      const initial = getSystemTheme();
-      setTheme(initial);
-      applyTheme(initial);
-    }
+    setThemeState(getCurrentTheme());
   }, []);
 
-  const toggleTheme = () => {
-    const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    applyTheme(next);
-  };
+  const toggleTheme = React.useCallback(() => {
+    const current = getCurrentTheme();
+    const next: Theme = current === "dark" ? "light" : "dark";
+    persistTheme(next);
+    setThemeState(next);
+  }, []);
 
   return (
-    <motion.div
-      className="fixed left-0 right-0 top-4 z-40 px-4"
-      initial={reduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
-      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
-      transition={{ duration: reduced ? 0.2 : 0.5, delay: reduced ? 0 : 0.22 }}
-    >
-      <div className="mx-auto max-w-6xl">
-        <motion.div
-          className={cn(
-            "rounded-full border",
-            "backdrop-blur-[14px]",
-            "px-3 py-2.5",
-          )}
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-6xl">
+        <div
+          className={cn("rounded-full border backdrop-blur-[14px] px-3 py-2.5")}
           style={{
-            backgroundColor,
-            borderColor,
-            boxShadow,
+            backgroundColor: "oklch(from var(--surface) l c h / 0.68)",
+            borderColor: "oklch(from var(--border) l c h / 0.72)",
+            boxShadow: "0 18px 60px oklch(0.02 0.01 265 / 0.20)",
           }}
         >
           <div className="flex items-center gap-2">
-            {/* Mobile menu button (desktop collapse toggle lives in Sidebar header) */}
+            {/* Mobile menu button only */}
             <button
               type="button"
               className={cn(
-                "inline-flex md:hidden h-10 w-10 items-center justify-center rounded-full border border-border",
-                "bg-surface/40 text-text/80 hover:text-text",
+                "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border",
+                "bg-surface/40 text-text/80 hover:text-text md:hidden",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
               )}
               aria-label="Open menu"
@@ -111,12 +88,8 @@ export function TopPillBar({ onOpenMobileMenu }: TopPillBarProps) {
             </button>
 
             <div className="min-w-0 px-1">
-              <div className="truncate text-sm font-semibold tracking-tight text-text">
-                {title}
-              </div>
-              <div className="truncate text-xs text-muted">
-                Shockingly smooth UI
-              </div>
+              <div className="truncate text-sm font-semibold tracking-tight text-text">{title}</div>
+              <div className="truncate text-xs text-muted">Shockingly smooth UI</div>
             </div>
 
             <div className="ml-auto flex items-center gap-2">
@@ -149,11 +122,103 @@ export function TopPillBar({ onOpenMobileMenu }: TopPillBarProps) {
                 aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
                 onClick={toggleTheme}
               >
-                {theme === "dark" ? (
-                  <Sun className="h-4 w-4" />
-                ) : (
-                  <Moon className="h-4 w-4" />
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TopPillBarEnhanced({ onOpenMobileMenu }: TopPillBarProps) {
+  const pathname = usePathname();
+  const reduced = useReducedMotion();
+  const title = titleFromPathname(pathname);
+
+  const [theme, setThemeState] = React.useState<Theme>("dark");
+  React.useEffect(() => {
+    setThemeState(getCurrentTheme());
+  }, []);
+
+  const toggleTheme = React.useCallback(() => {
+    const current = getCurrentTheme();
+    const next: Theme = current === "dark" ? "light" : "dark";
+    persistTheme(next);
+    setThemeState(next);
+  }, []);
+
+  const { scrollY } = useScroll();
+  const bgA = useTransform(scrollY, [0, 120], [0.7, 0.45]);
+  const borderA = useTransform(scrollY, [0, 120], [0.75, 0.55]);
+  const shadowA = useTransform(scrollY, [0, 120], [0.22, 0.14]);
+
+  const backgroundColor = useTransform(bgA, (a) => `oklch(from var(--surface) l c h / ${a})`);
+  const borderColor = useTransform(borderA, (a) => `oklch(from var(--border) l c h / ${a})`);
+  const boxShadow = useTransform(shadowA, (a) => `0 18px 60px oklch(0.02 0.01 265 / ${a})`);
+
+  return (
+    <motion.div
+      className="w-full"
+      initial={false}
+      animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0 }}
+      transition={{ duration: reduced ? 0.22 : 0.82, ease: [0.2, 0.8, 0.2, 1] }}
+    >
+      <div className="mx-auto w-full max-w-6xl">
+        <motion.div
+          className={cn("rounded-full border backdrop-blur-[14px] px-3 py-2.5")}
+          style={{ backgroundColor, borderColor, boxShadow }}
+        >
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className={cn(
+                "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border",
+                "bg-surface/40 text-text/80 hover:text-text md:hidden",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
+              )}
+              aria-label="Open menu"
+              onClick={onOpenMobileMenu}
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+
+            <div className="min-w-0 px-1">
+              <div className="truncate text-sm font-semibold tracking-tight text-text">{title}</div>
+              <div className="truncate text-xs text-muted">Shockingly smooth UI</div>
+            </div>
+
+            <div className="ml-auto flex items-center gap-2">
+              <div className="hidden items-center gap-2 md:flex">
+                <PillAction icon={UserPlus} label="Join" />
+                <PillAction icon={Handshake} label="Partner" />
+                <PillAction icon={Mail} label="Contact" />
+              </div>
+
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border",
+                  "bg-surface/40 text-text/80 hover:text-text",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
                 )}
+                aria-label="Search"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                className={cn(
+                  "inline-flex h-10 w-10 items-center justify-center rounded-full border border-border",
+                  "bg-surface/40 text-text/80 hover:text-text",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
+                )}
+                aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+                onClick={toggleTheme}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -185,4 +250,3 @@ function PillAction({
     </button>
   );
 }
-
