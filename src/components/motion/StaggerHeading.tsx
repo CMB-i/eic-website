@@ -10,14 +10,12 @@ type StaggerHeadingProps = {
   text: string;
   className?: string;
   as?: AsTag;
-  delay?: number;
 };
 
 export function StaggerHeading({
   text,
   className,
   as = "h1",
-  delay = 0,
 }: StaggerHeadingProps) {
   const reduced = useReducedMotion();
   const words = React.useMemo(() => text.split(/\s+/).filter(Boolean), [text]);
@@ -38,8 +36,7 @@ export function StaggerHeading({
         hidden: {},
         show: {
           transition: {
-            delayChildren: 0, // No delays.
-            staggerChildren: 0.06,
+            staggerChildren: 0.045,
           },
         },
       }}
@@ -53,7 +50,7 @@ export function StaggerHeading({
             show: {
               opacity: 1,
               y: 0,
-              transition: { duration: 0.35, ease: [0.2, 0.8, 0.2, 1] },
+              transition: { duration: 0.28, ease: [0.2, 0.8, 0.2, 1] },
             },
           }}
         >
@@ -64,4 +61,3 @@ export function StaggerHeading({
     </MotionTag>
   );
 }
-

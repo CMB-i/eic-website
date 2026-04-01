@@ -1,91 +1,118 @@
-import { GalleryHorizontalEnd } from "lucide-react";
-import { gallery } from "@/data/gallery";
-import { ScrollReveal, ScrollRevealGroup } from "@/components/motion/ScrollReveal";
-import { cn } from "@/lib/utils";
-import { StaggerHeading } from "@/components/motion/StaggerHeading";
-import { BentoCard } from "@/components/ui/BentoCard";
+import { ScrollReveal } from "@/components/motion/ScrollReveal";
+import { EditorialPhoto } from "@/components/editorial/EditorialPhoto";
+import { PageLeadImage } from "@/components/editorial/PageLeadImage";
+import { SectionHeading } from "@/components/editorial/SectionHeading";
+
+const GALLERY_GROUPS = [
+  {
+    title: "Founder conversations",
+    meta: "Founder Talk · Feb 2026",
+    tone: "warm" as const,
+    caption:
+      "A placeholder documentation block for speaker sessions, public Q&A, and founder-led insight moments.",
+  },
+  {
+    title: "Build sessions",
+    meta: "Innovation Lab",
+    tone: "neutral" as const,
+    caption:
+      "A placeholder visual archive for workshops, prototype reviews, and working formats focused on execution.",
+  },
+  {
+    title: "Campus showcases",
+    meta: "Demo Review",
+    tone: "violet" as const,
+    caption:
+      "A placeholder image block for showcase events where teams present work to peers, mentors, and the wider community.",
+  },
+] as const;
 
 export default function GalleryPage() {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-12">
-      <section className="space-y-6">
-        <ScrollReveal>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-xs text-muted">
-            <GalleryHorizontalEnd className="h-3.5 w-3.5 text-accent" />
-            Gallery
+    <div className="page-stack">
+      <ScrollReveal>
+        <section className="section-stack gap-8">
+          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
+            <div className="section-stack gap-5">
+              <div className="section-kicker">Gallery</div>
+              <h1 className="max-w-[12ch] text-balance text-4xl font-semibold text-text md:text-5xl lg:text-6xl">
+                A curated visual archive of campus momentum.
+              </h1>
+              <p className="section-copy">
+                The gallery should document not just events, but the atmosphere, work, and public
+                moments through which entrepreneurship becomes visible on campus.
+              </p>
+            </div>
+
+            <div className="meta-strip">
+              <div className="meta-item">
+                <div className="meta-label">Archive role</div>
+                <div className="meta-value">To build institutional memory and show what the ecosystem feels like in practice.</div>
+              </div>
+              <div className="meta-item">
+                <div className="meta-label">Content types</div>
+                <div className="meta-value">Talks, workshops, critiques, team moments, demos, and collaborations.</div>
+              </div>
+              <div className="meta-item">
+                <div className="meta-label">Visual tone</div>
+                <div className="meta-value">Documentary, editorial, and useful, rather than decorative or generic.</div>
+              </div>
+            </div>
           </div>
-        </ScrollReveal>
-        <ScrollReveal>
-          <StaggerHeading
-            as="h1"
-            className="text-balance text-4xl font-semibold tracking-tight text-text md:text-5xl"
-            text="Moments worth shipping."
-          />
-        </ScrollReveal>
-        <ScrollReveal>
-          <p className="max-w-2xl text-pretty text-sm leading-6 text-muted md:text-base">
-            Placeholder gallery tiles. Swap these with real photography or video stills later. The
-            cards are built for low CLS and fast paint.
-          </p>
-        </ScrollReveal>
-      </section>
+        </section>
+      </ScrollReveal>
 
-      <section className="space-y-6">
-        <HeaderKick title="Highlights" subtitle="Bento grid with lightweight hover motion." />
-        <ScrollRevealGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerChildren={0.08}>
-          {gallery.map((g) => (
-            <ScrollReveal key={g.id}>
-              <BentoTile tone={g.tone} title={g.title} caption={g.caption} />
-            </ScrollReveal>
-          ))}
-        </ScrollRevealGroup>
-      </section>
+      <ScrollReveal>
+        <PageLeadImage
+          title="Visual Archive"
+          meta="Campus Showcase"
+          tone="violet"
+          caption="Campus Showcase · A wide entry image gives the archive a more formal, editorial tone before the curated clusters begin."
+        />
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <section className="relative left-1/2 w-screen -translate-x-1/2 bg-surface/42 py-16">
+          <div className="section-frame px-5 md:px-8 lg:px-10">
+            <div className="section-stack">
+              <SectionHeading
+                label="Featured Clusters"
+                title="Moments grouped by what they reveal."
+                subtitle="The archive becomes stronger when images are curated around a story, not dropped into a flat grid."
+              />
+              <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+                <EditorialPhoto
+                  title={GALLERY_GROUPS[0].title}
+                  meta={GALLERY_GROUPS[0].meta}
+                  tone={GALLERY_GROUPS[0].tone}
+                  caption={GALLERY_GROUPS[0].caption}
+                />
+                <div className="grid gap-5">
+                  <div className="border-l border-border/70 pl-5 md:pl-6">
+                    <div className="text-[11px] uppercase tracking-[0.2em] text-muted">
+                      Editorial approach
+                    </div>
+                    <p className="mt-4 text-base leading-7 text-text/92">
+                      The gallery is strongest when it feels sequenced and observed. One leading
+                      image sets the tone, then the supporting moments build a fuller story around it.
+                    </p>
+                  </div>
+                  {GALLERY_GROUPS.slice(1).map((item) => (
+                    <EditorialPhoto
+                      key={item.title}
+                      title={item.title}
+                      meta={item.meta}
+                      tone={item.tone}
+                      compact
+                      caption={item.caption}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
     </div>
   );
 }
-
-function HeaderKick({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="text-sm font-semibold tracking-tight text-text">{title}</div>
-      <div className="text-sm text-muted">{subtitle}</div>
-    </div>
-  );
-}
-
-function BentoTile({
-  title,
-  caption,
-  tone,
-}: {
-  title: string;
-  caption: string;
-  tone: "Butter" | "Nebula" | "Aurora" | "Chrome";
-}) {
-  const bg = toneToGradient(tone);
-  return (
-    <BentoCard className="p-0">
-      <div className={cn("aspect-[4/3] w-full", bg)} />
-      <div className="space-y-2 p-5">
-        <div className="text-base font-semibold text-text">{title}</div>
-        <div className="text-sm leading-6 text-muted">{caption}</div>
-        <div className="pt-1 text-xs text-muted">{tone}</div>
-      </div>
-    </BentoCard>
-  );
-}
-
-function toneToGradient(tone: "Butter" | "Nebula" | "Aurora" | "Chrome") {
-  switch (tone) {
-    case "Butter":
-      return "bg-[radial-gradient(circle_at_20%_20%,rgba(255,219,102,0.55),transparent_55%),radial-gradient(circle_at_80%_30%,rgba(255,219,102,0.22),transparent_55%),linear-gradient(135deg,rgba(255,255,255,0.16),rgba(0,0,0,0))]";
-    case "Nebula":
-      return "bg-[radial-gradient(circle_at_30%_30%,rgba(141,162,255,0.42),transparent_55%),radial-gradient(circle_at_75%_60%,rgba(255,219,102,0.18),transparent_55%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(0,0,0,0))]";
-    case "Aurora":
-      return "bg-[radial-gradient(circle_at_25%_70%,rgba(255,219,102,0.26),transparent_55%),radial-gradient(circle_at_70%_35%,rgba(141,162,255,0.34),transparent_55%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(0,0,0,0))]";
-    case "Chrome":
-    default:
-      return "bg-[radial-gradient(circle_at_30%_35%,rgba(255,255,255,0.18),transparent_55%),radial-gradient(circle_at_75%_65%,rgba(255,219,102,0.14),transparent_55%),linear-gradient(135deg,rgba(255,255,255,0.10),rgba(0,0,0,0))]";
-  }
-}
-

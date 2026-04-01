@@ -1,9 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   CalendarDays,
-  GalleryHorizontalEnd,
   Home,
-  Rocket,
   Mail,
   Sparkles,
   Users,
@@ -11,28 +9,35 @@ import {
 
 export type NavItem = {
   title: string;
-  href: "/" | "/about" | "/initiatives" | "/events" | "/team" | "/gallery" | "/contact";
+  href: "/" | "/about" | "/events" | "/team" | "/gallery" | "/contact" | "/entrepx";
   icon: LucideIcon;
   description?: string;
+  featured?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
   { title: "Home", href: "/", icon: Home, description: "Overview" },
-  { title: "About", href: "/about", icon: Sparkles, description: "Mission & vision" },
-  { title: "Initiatives", href: "/initiatives", icon: Rocket, description: "Programs" },
   { title: "Events", href: "/events", icon: CalendarDays, description: "Schedule" },
   { title: "Team", href: "/team", icon: Users, description: "People" },
-  { title: "Gallery", href: "/gallery", icon: GalleryHorizontalEnd, description: "Highlights" },
+  {
+    title: "EntrepX",
+    href: "/entrepx",
+    icon: Sparkles,
+    description: "Flagship event",
+    featured: true,
+  },
   { title: "Contact", href: "/contact", icon: Mail, description: "Get in touch" },
 ];
+
+export const PRIMARY_NAV_ITEMS = NAV_ITEMS.filter((item) => item.href !== "/");
 
 const TITLE_MAP: Record<NavItem["href"], string> = {
   "/": "Home",
   "/about": "About",
-  "/initiatives": "Initiatives",
   "/events": "Events",
   "/team": "Team",
   "/gallery": "Gallery",
+  "/entrepx": "EntrepX",
   "/contact": "Contact",
 };
 
@@ -46,4 +51,3 @@ export function isActivePath(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
-

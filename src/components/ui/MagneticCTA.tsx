@@ -14,6 +14,7 @@ type MagneticCTAProps = {
   href: string;
   className?: string;
   children: React.ReactNode;
+  style?: React.CSSProperties;
   /**
    * Max translation in px for the inner content.
    */
@@ -29,7 +30,13 @@ function isTouchLikeDevice(): boolean {
   );
 }
 
-export function MagneticCTA({ href, className, children, clampPx = 6 }: MagneticCTAProps) {
+export function MagneticCTA({
+  href,
+  className,
+  children,
+  style,
+  clampPx = 6,
+}: MagneticCTAProps) {
   const reduced = useReducedMotion();
   const [touchLike, setTouchLike] = React.useState(true);
 
@@ -70,6 +77,7 @@ export function MagneticCTA({ href, className, children, clampPx = 6 }: Magnetic
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow/60",
         className,
       )}
+      style={style}
     >
       <motion.span
         className="inline-flex items-center gap-2"
@@ -80,4 +88,3 @@ export function MagneticCTA({ href, className, children, clampPx = 6 }: Magnetic
     </Link>
   );
 }
-

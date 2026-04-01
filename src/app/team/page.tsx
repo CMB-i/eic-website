@@ -1,79 +1,181 @@
-import { Users } from "lucide-react";
-import { team } from "@/data/team";
-import { ScrollReveal, ScrollRevealGroup } from "@/components/motion/ScrollReveal";
-import { BentoCard } from "@/components/ui/BentoCard";
-import { StaggerHeading } from "@/components/motion/StaggerHeading";
+"use client";
+
+import * as React from "react";
+import { ScrollReveal } from "@/components/motion/ScrollReveal";
+import { PageLeadImage } from "@/components/editorial/PageLeadImage";
+import { SectionHeading } from "@/components/editorial/SectionHeading";
+import { TeamProfileCard } from "@/components/ui/TeamProfileCard";
+import { type Person, presidents, functions } from "@/data/team";
+import { TEAM_DATA } from "@/data/teamData";
 
 export default function TeamPage() {
-  return (
-    <div className="mx-auto w-full max-w-6xl space-y-12">
-      <section className="space-y-6">
-        <ScrollReveal>
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-3 py-1 text-xs text-muted">
-            <Users className="h-3.5 w-3.5 text-accent" />
-            Team
-          </div>
-        </ScrollReveal>
-        <ScrollReveal>
-          <StaggerHeading
-            as="h1"
-            className="text-balance text-4xl font-semibold tracking-tight text-text md:text-5xl"
-            text="Builders behind the work."
-          />
-        </ScrollReveal>
-        <ScrollReveal>
-          <p className="max-w-2xl text-pretty text-sm leading-6 text-muted md:text-base">
-            Placeholder 
-          </p>
-        </ScrollReveal>
-      </section>
+  const archiveTeams = TEAM_DATA;
+  const [archiveYear, setArchiveYear] = React.useState<string>(archiveTeams[0]?.year ?? "");
+  const archiveTeam = archiveTeams.find((team) => team.year === archiveYear);
+  const currentPresidents = presidents.map(personToProfile);
+  const archivedPresidents = (archiveTeam?.presidents ?? []).map(personToProfile);
 
-      <section className="space-y-6">
-        <HeaderKick title="Core team" subtitle="the skeleton of your cell" />
-        <ScrollRevealGroup className="grid gap-4 md:grid-cols-2 lg:grid-cols-3" staggerChildren={0.08}>
-          {team.map((m) => (
-            <ScrollReveal key={m.id}>
-              <BentoCard>
-                <div className="flex items-start gap-4">
-                  <AvatarSeed seed={m.name} />
-                  <div className="min-w-0">
-                    <div className="truncate text-base font-semibold text-text">{m.name}</div>
-                    <div className="mt-1 text-sm text-muted">{m.role}</div>
-                    <div className="mt-3 text-sm leading-6 text-muted">{m.focus}</div>
-                  </div>
+  return (
+    <div className="page-stack">
+      <ScrollReveal>
+        <section className="section-stack gap-8">
+          <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-end">
+            <div className="section-stack gap-5">
+              <div className="section-kicker">Team</div>
+              <h1 className="max-w-[12ch] text-balance text-4xl font-semibold text-text md:text-5xl lg:text-6xl">
+                The people building EIC.
+              </h1>
+              <p className="section-copy">
+                A student-led leadership structure shaped through presidents, functional heads, and
+                continuity across cohorts.
+              </p>
+            </div>
+
+            <div className="meta-strip">
+              <div className="meta-item">
+                <div className="meta-label">Presidents</div>
+                <div className="meta-value">
+                  {presidents.length} student leaders guiding direction and continuity.
                 </div>
-              </BentoCard>
-            </ScrollReveal>
-          ))}
-        </ScrollRevealGroup>
-      </section>
+              </div>
+              <div className="meta-item">
+                <div className="meta-label">Functions</div>
+                <div className="meta-value">
+                  {functions.length} working pillars across events, content, marketing, tech, and
+                  operations.
+                </div>
+              </div>
+              <div className="meta-item">
+                <div className="meta-label">Archive</div>
+                <div className="meta-value">
+                  Presidential continuity preserved across earlier EIC cohorts.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <PageLeadImage
+          title="Team"
+          meta="Current Cohort"
+          tone="neutral"
+          caption="The students shaping EIC through leadership, function ownership, and the day-to-day systems that hold the platform together."
+        />
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <section id="presidents" className="section-stack">
+          <SectionHeading
+            label="Presidents"
+            title="Direction, continuity, and public voice."
+            subtitle="The presidents hold the broader line of the platform: how it is positioned, how it operates, and what kind of student culture it tries to build."
+          />
+          <div className="grid gap-6 border-t border-border/65 pt-6 md:grid-cols-2 xl:gap-8">
+            {currentPresidents.map((president, index) => (
+              <TeamProfileCard
+                key={president.id}
+                person={president}
+                size="large"
+                priority={index < 2}
+                className="justify-self-center"
+              />
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <section id="core-team" className="section-stack">
+          <SectionHeading
+            label="Heads"
+            title="Functional ownership across the platform."
+            subtitle="Each function holds a clear working area inside EIC, from events and content to marketing, tech, and public-facing communication."
+          />
+          <div className="grid grid-cols-1 gap-6 border-t border-border/65 pt-6 sm:grid-cols-2 lg:grid-cols-4">
+            {functions.map((fn) => (
+              <section key={fn.id} className="space-y-4 sm:col-span-2 lg:col-span-2">
+                <div className="border-t border-border/45 pt-4">
+                  <div className="text-lg font-semibold tracking-tight text-text">{fn.name}</div>
+                </div>
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <TeamProfileCard
+                    person={roleToProfile(fn.name, "Head", fn.head)}
+                    className="max-w-none"
+                  />
+                  <TeamProfileCard
+                    person={roleToProfile(fn.name, "Vice Head", fn.viceHead)}
+                    className="max-w-none"
+                  />
+                </div>
+              </section>
+            ))}
+          </div>
+        </section>
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <section className="section-stack mt-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <SectionHeading
+              label="Archive"
+              title="Previous presidents"
+              subtitle="Presidential continuity across earlier EIC cohorts."
+            />
+            <label className="grid gap-2 md:w-[220px]">
+              <span className="text-xs uppercase tracking-[0.18em] text-muted">Archive Year</span>
+              <select
+                value={archiveYear}
+                onChange={(event) => setArchiveYear(event.target.value)}
+                className="h-11 rounded-full border border-border bg-surface px-4 text-sm text-text outline-none transition-colors focus-visible:ring-2 focus-visible:ring-glow/40"
+                aria-label="Select archived EIC team year"
+              >
+                {archiveTeams.map((team) => (
+                  <option key={team.year} value={team.year}>
+                    {team.year} Team
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {archiveTeam ? (
+            <div className="grid gap-6 border-t border-border/65 pt-6 md:grid-cols-2">
+              {archivedPresidents.map((president) => (
+                <TeamProfileCard
+                  key={president.id}
+                  person={president}
+                  muted
+                  className="justify-self-center"
+                />
+              ))}
+            </div>
+          ) : null}
+        </section>
+      </ScrollReveal>
     </div>
   );
 }
 
-function HeaderKick({ title, subtitle }: { title: string; subtitle: string }) {
+function personToProfile(person: { id: string; name: string; role: string }): Person {
+  return {
+    ...person,
+    pillars: [],
+  };
+}
+
+function roleToProfile(functionName: string, role: string, name?: string): Person {
+  const displayName = name ?? "TBA";
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="text-sm font-semibold tracking-tight text-text">{title}</div>
-      <div className="text-sm text-muted">{subtitle}</div>
-    </div>
+    {
+      id: `${functionName}-${role}-${displayName}`.toLowerCase().replace(/\s+/g, "-"),
+      name: displayName,
+      role,
+      domain: functionName,
+      pillars: [],
+      contribution: displayName === "TBA" ? "Position to be announced" : `${functionName} team`,
+    }
   );
 }
-
-// BentoCard is shared (`src/components/ui/BentoCard.tsx`).
-
-function AvatarSeed({ seed }: { seed: string }) {
-  const initials = seed
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase())
-    .join("");
-
-  return (
-    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-3xl border border-border bg-background/40">
-      <span className="text-sm font-semibold text-text">{initials}</span>
-    </div>
-  );
-}
-

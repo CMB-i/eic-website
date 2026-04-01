@@ -13,16 +13,16 @@ export function pageVariants(opts: { reduced: boolean; supportsClipPath: boolean
 
   if (!supportsClipPath) {
     return {
-      initial: { opacity: 0.92, y: 8 },
+      initial: { opacity: 0.96, y: 6 },
       animate: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.32, ease: [0.2, 0.8, 0.2, 1] },
+        transition: { duration: 0.24, ease: [0.2, 0.8, 0.2, 1] },
       },
       exit: {
         opacity: 0,
-        y: -6,
-        transition: { duration: 0.24, ease: [0.2, 0.8, 0.2, 1] },
+        y: -4,
+        transition: { duration: 0.18, ease: [0.2, 0.8, 0.2, 1] },
       },
     };
   }
@@ -54,7 +54,7 @@ export function fadeUp(reduced: boolean, y = 12): Variants {
   }
   // Don't hide content; animate only position (or subtle opacity enhancement).
   return {
-    hidden: { opacity: 0.92, y },
+    hidden: { opacity: 0.96, y },
     show: { opacity: 1, y: 0 },
   };
 }
@@ -76,4 +76,3 @@ export function stagger(reduced: boolean, staggerChildren = 0.08): Variants {
     },
   };
 }
-

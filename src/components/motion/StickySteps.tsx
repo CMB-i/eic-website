@@ -17,7 +17,7 @@ export type StickyStep = {
 };
 
 type StickyStepsProps = {
-  steps: [StickyStep, StickyStep, StickyStep];
+  steps: readonly StickyStep[];
   className?: string;
   heightVh?: number; // outer height (defaults 220)
 };
@@ -31,7 +31,7 @@ export function StickySteps({ steps, className, heightVh = 220 }: StickyStepsPro
     return (
       <section className={cn("space-y-4", className)}>
         {steps.map((s) => (
-          <ScrollReveal key={s.title} amount={0.2} blurPx={0}>
+          <ScrollReveal key={s.title} amount={0.2}>
             <StepCard title={s.title} body={s.body} />
           </ScrollReveal>
         ))}
@@ -56,7 +56,7 @@ function StickyInner({
   steps,
   targetRef,
 }: {
-  steps: [StickyStep, StickyStep, StickyStep];
+  steps: readonly StickyStep[];
   targetRef: React.RefObject<HTMLElement | null>;
 }) {
   const { scrollYProgress } = useScroll({
@@ -64,21 +64,16 @@ function StickyInner({
     offset: ["start start", "end end"],
   });
 
-  const [active, setActive] = React.useState<0 | 1 | 2>(0);
-  const activeRef = React.useRef<0 | 1 | 2>(0);
+  const [active, setActive] = React.useState(0);
+  const activeRef = React.useRef(0);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const current = activeRef.current;
-    let next = current;
-
-    if (current === 0 && v > 0.36) next = 1;
-    else if (current === 1 && v < 0.30) next = 0;
-    else if (current === 1 && v > 0.70) next = 2;
-    else if (current === 2 && v < 0.62) next = 1;
-
-    if (next === current) return;
-    activeRef.current = next;
-    setActive(next);
+    const maxIndex = steps.length - 1;
+    const next = Math.max(0, Math.min(maxIndex, Math.round(v * maxIndex)));
+    if (next !== activeRef.current) {
+      activeRef.current = next;
+      setActive(next);
+    }
   });
 
   return (
@@ -105,7 +100,7 @@ function StickyInner({
           {/* Progress indicator */}
           <div className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2">
             <div className="relative flex items-center gap-2 rounded-full border border-border bg-background/40 px-2 py-1">
-              {[0, 1, 2].map((i) => (
+              {steps.map((_, i) => (
                 <div key={i} className="relative h-2 w-2">
                   <span className="absolute inset-0 rounded-full bg-muted/40" />
                   {active === i && (
@@ -139,4 +134,3 @@ function StepCard({ title, body }: { title: string; body: string }) {
     </div>
   );
 }
-

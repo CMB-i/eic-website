@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 function getLowPowerHint(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -34,13 +34,10 @@ function getReducedMotionMedia(): boolean {
  * - Adds a gentle "low power" heuristic for expensive features (e.g. 3D Canvas)
  */
 export function useReducedMotionPref(): boolean {
-  const [prefersReduced, setPrefersReduced] = useState(false);
-  const [lowPower, setLowPower] = useState(false);
+  const [prefersReduced, setPrefersReduced] = useState(getReducedMotionMedia);
+  const [lowPower] = useState(getLowPowerHint);
 
   useEffect(() => {
-    setPrefersReduced(getReducedMotionMedia());
-    setLowPower(getLowPowerHint());
-
     const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     if (!mq) return;
 
@@ -49,6 +46,5 @@ export function useReducedMotionPref(): boolean {
     return () => mq.removeEventListener?.("change", onChange);
   }, []);
 
-  return useMemo(() => prefersReduced || lowPower, [prefersReduced, lowPower]);
+  return prefersReduced || lowPower;
 }
-
