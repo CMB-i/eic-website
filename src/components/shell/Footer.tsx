@@ -60,7 +60,18 @@ export function Footer() {
 
           <div className="mt-12 flex flex-col gap-2 border-t border-border/60 pt-6 text-xs text-muted md:flex-row md:items-center md:justify-between">
             <div>© 2026 Entrepreneurship & Innovation Cell</div>
-            <div>Built for campus innovation at Mahindra University</div>
+
+            <Link
+              href="https://github.com/CMB-i/eic-website"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex w-fit items-center gap-1 text-muted transition-colors hover:text-text"
+            >
+              <span>Built for campus innovation at Mahindra University</span>
+              <span className="opacity-70 transition-opacity group-hover:opacity-100">
+                ↗ source code
+              </span>
+            </Link>
           </div>
         </div>
       </div>
