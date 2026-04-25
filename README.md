@@ -1,8 +1,6 @@
 # EIC Website
 
-A production-style institutional website built for the **Entrepreneurship & Innovation Cell, Mahindra University**.
-
-This project is designed as a **recruiter-facing frontend showcase**, focusing on real-world UI engineering, structure, and polish rather than just visual aesthetics.
+**Entrepreneurship & Innovation Cell, Mahindra University**.
 
 ---
 
@@ -16,7 +14,6 @@ The website presents:
 - Flagship event (**EntrepX**)
 - Contact and idea submission flows
 
-Unlike typical portfolio projects, this is built as a **complete multi-page product**, not a single landing page.
 
 ---
 
